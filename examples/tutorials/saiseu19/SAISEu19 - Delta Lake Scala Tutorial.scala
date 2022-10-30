@@ -51,7 +51,7 @@ import java.io._
 
 // Configurations necessary for running of Databricks Community Edition
 spark.sql("set spark.sql.shuffle.partitions = 1")
-spark.sql("set spark.databricks.delta.snapshotPartitions = 1")
+spark.sql("set spark.delta.snapshotPartitions = 1")
 
 val demo_path = "/sais_eu_19_demo/"
 val parquetPath = "/sais_eu_19_demo/loans_parquet"
@@ -73,7 +73,7 @@ val parquetPath = "/sais_eu_19_demo/loans_parquet"
 
 // Configurations necessary for running of Databricks Community Edition
 spark.sql("set spark.sql.shuffle.partitions = 1")
-spark.sql("set spark.databricks.delta.snapshotPartitions = 1")
+spark.sql("set spark.delta.snapshotPartitions = 1")
 
 // Delete a new parquet table with the parquet file
 if (new File("/dbfs" + parquetPath).exists()) {
@@ -236,7 +236,7 @@ val deltaPath = "/sais_eu_19_demo/loans_delta"
 
 // Configurations necessary for running of Databricks Community Edition
 spark.sql("set spark.sql.shuffle.partitions = 1")
-spark.sql("set spark.databricks.delta.snapshotPartitions = 1")
+spark.sql("set spark.delta.snapshotPartitions = 1")
 
 // Remove folder if it exists
 println("Deleting directory " + deltaPath)
@@ -482,7 +482,7 @@ display(spark.sql("SELECT COUNT(*) FROM loans_delta_pre_delete WHERE funded_amnt
 
 // COMMAND ----------
 
-spark.sql("SET spark.databricks.delta.retentionDurationCheck.enabled = false")
+spark.sql("SET spark.delta.retentionDurationCheck.enabled = false")
 deltaTable.vacuum(retentionHours = 0)
 
 // COMMAND ----------
@@ -523,7 +523,7 @@ display(spark.sql("SELECT COUNT(*) FROM loans_delta_pre_delete WHERE funded_amnt
 // COMMAND ----------
 
 spark.sql("set spark.sql.shuffle.partitions = 1")
-spark.sql("set spark.databricks.delta.snapshotPartitions = 1")
+spark.sql("set spark.delta.snapshotPartitions = 1")
 
 // Configure Delta Lake Silver Path
 val deltaSmallPath = "/sais_eu_19_demo/loans_delta_small"
@@ -631,7 +631,7 @@ import org.apache.spark.sql.types._
 
 // Configuration 
 spark.sql("set spark.sql.shuffle.partitions = 1")
-spark.sql("set spark.databricks.delta.snapshotPartitions = 1")
+spark.sql("set spark.delta.snapshotPartitions = 1")
 
 val loanCountsByStatesPath = "/sais_eu_19_demo/loans_by_states"
 

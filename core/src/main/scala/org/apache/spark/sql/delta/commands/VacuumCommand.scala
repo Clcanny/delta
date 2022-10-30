@@ -70,7 +70,7 @@ object VacuumCommand extends VacuumCommandImpl with Serializable {
         |
         |If you are certain that there are no operations being performed on this table, such as
         |insert/upsert/delete/optimize, then you may turn off this check by setting:
-        |spark.databricks.delta.retentionDurationCheck.enabled = false
+        |spark.delta.retentionDurationCheck.enabled = false
         |
         |If you are not sure, please use a value not less than "$configuredRetentionHours hours".
        """.stripMargin)

@@ -335,41 +335,44 @@ trait ConvertToDeltaSuiteBase extends ConvertToDeltaSuiteBaseCommons
     val stream = MemoryStream[Int]
     val df = stream.toDS().toDF("col1")
 
-    withTempDir { outputDir =>
-      val checkpoint = new File(outputDir, "_check").toString
-      val dataLocation = new File(outputDir, "data").toString
-      val options = Map(
-        "checkpointLocation" -> checkpoint
-      )
-
-      // Add initial data to parquet file sink
-      val q = df.writeStream.options(options).format("parquet").start(dataLocation)
-      stream.addData(1 to 5)
-      q.processAllAvailable()
-      q.stop()
-
-      // Add non-streaming data: this should not be ignored in conversion.
-      spark.range(11, 21).select('id.cast("int") as 'col1)
-        .write.mode("append").parquet(dataLocation)
-
-      withSQLConf(("spark.databricks.delta.convert.useMetadataLog", "false")) {
-        sql(s"CONVERT TO DELTA parquet.`$dataLocation`")
-      }
-
-      // Write data to delta
-      val q2 = df.writeStream.options(options).format("delta").start(dataLocation)
-
-      try {
-        stream.addData(6 to 10)
-        q2.processAllAvailable()
-
-        // Should read all data not just streaming data
-        checkAnswer(
-          spark.read.format("delta").load(dataLocation),
-          (1 to 20).map { Row(_) }
+    for (key <- List("spark.delta.convert.useMetadataLog",
+                     "spark.databricks.delta.convert.useMetadataLog")) {
+      withTempDir { outputDir =>
+        val checkpoint = new File(outputDir, "_check").toString
+        val dataLocation = new File(outputDir, "data").toString
+        val options = Map(
+          "checkpointLocation" -> checkpoint
         )
-      } finally {
-        q2.stop()
+
+        // Add initial data to parquet file sink
+        val q = df.writeStream.options(options).format("parquet").start(dataLocation)
+        stream.addData(1 to 5)
+        q.processAllAvailable()
+        q.stop()
+
+        // Add non-streaming data: this should not be ignored in conversion.
+        spark.range(11, 21).select('id.cast("int") as 'col1)
+          .write.mode("append").parquet(dataLocation)
+
+        withSQLConf((key, "false")) {
+          sql(s"CONVERT TO DELTA parquet.`$dataLocation`")
+        }
+
+        // Write data to delta
+        val q2 = df.writeStream.options(options).format("delta").start(dataLocation)
+
+        try {
+          stream.addData(6 to 10)
+          q2.processAllAvailable()
+
+          // Should read all data not just streaming data
+          checkAnswer(
+            spark.read.format("delta").load(dataLocation),
+            (1 to 20).map { Row(_) }
+          )
+        } finally {
+          q2.stop()
+        }
       }
     }
   }
@@ -667,14 +670,17 @@ trait ConvertToDeltaSuiteBase extends ConvertToDeltaSuiteBaseCommons
   }
 
   test("can fetch global configs") {
-    withTempDir { dir =>
-      val path = dir.getCanonicalPath
-      val deltaLog = DeltaLog.forTable(spark, path)
-      withSQLConf("spark.databricks.delta.properties.defaults.appendOnly" -> "true") {
-        writeFiles(path, simpleDF.coalesce(1))
-        convertToDelta(s"parquet.`$path`")
+    for (key <- List("spark.delta.properties.defaults.appendOnly",
+                     "spark.databricks.delta.properties.defaults.appendOnly")) {
+      withTempDir { dir =>
+        val path = dir.getCanonicalPath
+        val deltaLog = DeltaLog.forTable(spark, path)
+        withSQLConf(key -> "true") {
+          writeFiles(path, simpleDF.coalesce(1))
+          convertToDelta(s"parquet.`$path`")
+        }
+        assert(deltaLog.snapshot.metadata.configuration("delta.appendOnly") === "true")
       }
-      assert(deltaLog.snapshot.metadata.configuration("delta.appendOnly") === "true")
     }
   }
 

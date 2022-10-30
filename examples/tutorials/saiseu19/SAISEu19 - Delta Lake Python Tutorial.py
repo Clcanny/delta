@@ -49,7 +49,7 @@ import os, shutil
 
 # Configurations necessary for running of Databricks Community Edition
 spark.sql("set spark.sql.shuffle.partitions = 1")  # noqa
-spark.sql("set spark.databricks.delta.snapshotPartitions = 1")  # noqa
+spark.sql("set spark.delta.snapshotPartitions = 1")  # noqa
 
 demo_path = "/sais_eu_19_demo/"
 
@@ -230,7 +230,7 @@ delta_path = "/sais_eu_19_demo/loans_delta"
 
 # Configurations necessary for running of Databricks Community Edition
 spark.sql("set spark.sql.shuffle.partitions = 1")
-spark.sql("set spark.databricks.delta.snapshotPartitions = 1")
+spark.sql("set spark.delta.snapshotPartitions = 1")
 
 # Remove folder if it exists
 print("Deleting directory " + delta_path)
@@ -482,7 +482,7 @@ display(spark.sql("SELECT COUNT(*) FROM loans_delta_pre_delete WHERE funded_amnt
 
 # COMMAND ----------
 
-spark.sql("SET spark.databricks.delta.retentionDurationCheck.enabled = false")
+spark.sql("SET spark.delta.retentionDurationCheck.enabled = false")
 deltaTable.vacuum(retentionHours = 0)
 
 # COMMAND ----------
@@ -523,7 +523,7 @@ display(spark.sql("SELECT COUNT(*) FROM loans_delta_pre_delete WHERE funded_amnt
 # COMMAND ----------
 
 spark.sql("set spark.sql.shuffle.partitions = 1")
-spark.sql("set spark.databricks.delta.snapshotPartitions = 1")
+spark.sql("set spark.delta.snapshotPartitions = 1")
 
 # Configure Delta Lake Silver Path
 delta_small_path = "/sais_eu_19_demo/loans_delta_small"
@@ -635,7 +635,7 @@ from pyspark.sql.types import *
 
 # Configuration 
 spark.sql("set spark.sql.shuffle.partitions = 1")
-spark.sql("set spark.databricks.delta.snapshotPartitions = 1")
+spark.sql("set spark.delta.snapshotPartitions = 1")
 
 loan_counts_by_states_path = "/sais_eu_19_demo/loans_by_states"
 chkpt_path = "/tmp/chkpt/%s" % str(random.randint(0, 10000))

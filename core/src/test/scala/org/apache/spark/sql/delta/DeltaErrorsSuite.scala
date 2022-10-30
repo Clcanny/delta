@@ -499,7 +499,7 @@ trait DeltaErrorsSuiteBase
         throw DeltaErrors.convertToDeltaWithColumnMappingNotSupported(IdMapping)
       }
       assert(e.getMessage == "The configuration " +
-        "'spark.databricks.delta.properties.defaults.columnMapping.mode' cannot be set to `id` " +
+        "'spark.delta.properties.defaults.columnMapping.mode' cannot be set to `id` " +
         "when using CONVERT TO DELTA.")
     }
     {
@@ -1021,7 +1021,7 @@ trait DeltaErrorsSuiteBase
         throw DeltaErrors.unknownConfigurationKeyException("confKey")
       }
       var msg = "Unknown configuration was specified: confKey\nTo disable this check, set " +
-        "spark.databricks.delta.allowArbitraryProperties.enabled=true in the Spark session " +
+        "spark.delta.allowArbitraryProperties.enabled=true in the Spark session " +
         "configuration."
       assert(e.getErrorClass == "DELTA_UNKNOWN_CONFIGURATION")
       assert(e.getMessage == msg)
@@ -1045,7 +1045,7 @@ trait DeltaErrorsSuiteBase
           |s3://, wasbs:// or adls://.
           |
           |If this table is NOT USED IN PRODUCTION, you can set the SQL configuration
-          |spark.databricks.delta.vacuum.relativize.ignoreError to true.
+          |spark.delta.vacuum.relativize.ignoreError to true.
           |Using this SQL configuration could lead to accidental data loss, therefore we do
           |not recommend the use of this flag unless this is for testing purposes.""".stripMargin
       assert(e.getMessage == msg)
@@ -1433,7 +1433,7 @@ trait DeltaErrorsSuiteBase
           |expected: [`col2`]
           |actual: [`col3`]
           |To disable this check set """.stripMargin +
-          "spark.databricks.delta.commitValidation.enabled to \"false\"")
+          "spark.delta.commitValidation.enabled to \"false\"")
     }
     {
       val e = intercept[DeltaIllegalArgumentException] {
@@ -1494,7 +1494,7 @@ trait DeltaErrorsSuiteBase
       assert(e.getSqlState == "0A000")
       assert(e.getMessage == "Found columns using unsupported data types: " +
         "[foo: CalendarIntervalType, bar: TimestampNTZType]. " +
-        "You can set 'spark.databricks.delta.schema.typeCheck.enabled' to 'false' " +
+        "You can set 'spark.delta.schema.typeCheck.enabled' to 'false' " +
         "to disable the type check. Disabling this type check may allow users to create " +
         "unsupported Delta tables and should only be used when trying to read/write legacy tables.")
     }

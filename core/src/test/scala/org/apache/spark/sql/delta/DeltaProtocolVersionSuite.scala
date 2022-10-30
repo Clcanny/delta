@@ -510,33 +510,36 @@ trait DeltaProtocolVersionSuiteBase extends QueryTest
       sql(s"CREATE TABLE $tableName (id bigint NOT NULL) USING delta LOCATION '$dir'")
     }
 
-    withSQLConf("spark.databricks.delta.properties.defaults.appendOnly" -> "true") {
-      testTableCreation { dir => spark.range(10).write.format("delta").save(dir) }
-      testTableCreation { dir =>
-        spark.range(10).write.format("delta").option("path", dir).saveAsTable(tableName)
-      }
-      testTableCreation { dir =>
-        spark.range(10).writeTo(tableName).using("delta").tableProperty("location", dir).create()
-      }
-      testTableCreation { dir =>
-        sql(s"CREATE TABLE $tableName (id bigint) USING delta LOCATION '$dir'")
-      }
-      testTableCreation { dir =>
-        sql(s"CREATE TABLE $tableName USING delta LOCATION '$dir' AS SELECT * FROM range(10)")
-      }
-      testTableCreation { dir =>
-        val stream = MemoryStream[Int]
-        stream.addData(1 to 10)
-        val q = stream.toDF().writeStream.format("delta")
-          .option("checkpointLocation", new File(dir, "_checkpoint").getCanonicalPath)
-          .start(dir)
-        q.processAllAvailable()
-        q.stop()
-      }
+    for (key <- List("spark.delta.properties.defaults.appendOnly",
+                     "spark.databricks.delta.properties.defaults.appendOnly")) {
+      withSQLConf(key -> "true") {
+        testTableCreation { dir => spark.range(10).write.format("delta").save(dir) }
+        testTableCreation { dir =>
+          spark.range(10).write.format("delta").option("path", dir).saveAsTable(tableName)
+        }
+        testTableCreation { dir =>
+          spark.range(10).writeTo(tableName).using("delta").tableProperty("location", dir).create()
+        }
+        testTableCreation { dir =>
+          sql(s"CREATE TABLE $tableName (id bigint) USING delta LOCATION '$dir'")
+        }
+        testTableCreation { dir =>
+          sql(s"CREATE TABLE $tableName USING delta LOCATION '$dir' AS SELECT * FROM range(10)")
+        }
+        testTableCreation { dir =>
+          val stream = MemoryStream[Int]
+          stream.addData(1 to 10)
+          val q = stream.toDF().writeStream.format("delta")
+            .option("checkpointLocation", new File(dir, "_checkpoint").getCanonicalPath)
+            .start(dir)
+          q.processAllAvailable()
+          q.stop()
+        }
 
-      testTableCreation { dir =>
-        spark.range(10).write.mode("append").parquet(dir)
-        sql(s"CONVERT TO DELTA parquet.`$dir`")
+        testTableCreation { dir =>
+          spark.range(10).write.mode("append").parquet(dir)
+          sql(s"CONVERT TO DELTA parquet.`$dir`")
+        }
       }
     }
   }

@@ -109,14 +109,15 @@ trait DeltaConfigsBase extends DeltaLogging {
   /**
    * A global default value set as a SQLConf will overwrite the default value of a DeltaConfig.
    * For example, user can run:
-   *   set spark.databricks.delta.properties.defaults.randomPrefixLength = 5
+   *   set spark.delta.properties.defaults.randomPrefixLength = 5
    * This setting will be populated to a Delta table during its creation time and overwrites
    * the default value of delta.randomPrefixLength.
    *
    * We accept these SQLConfs as strings and only perform validation in DeltaConfig. All the
    * DeltaConfigs set in SQLConf should adopt the same prefix.
    */
-  val sqlConfPrefix = "spark.databricks.delta.properties.defaults."
+  val sqlConfPrefix = "spark.delta.properties.defaults."
+  val deprecatedSqlConfPrefix = "spark.databricks.delta.properties.defaults."
 
   private val entries = new HashMap[String, DeltaConfig[_]]
 
@@ -191,9 +192,13 @@ trait DeltaConfigsBase extends DeltaLogging {
 
     val globalConfs = entries.asScala.flatMap { case (key, config) =>
       val sqlConfKey = sqlConfPrefix + config.key.stripPrefix("delta.")
-      Option(sqlConfs.getConfString(sqlConfKey, null)) match {
-        case Some(default) => Some(config(default))
-        case _ => None
+      val sqlConf = Option(sqlConfs.getConfString(sqlConfKey, null))
+      val deprecatedSqlConfKey = deprecatedSqlConfPrefix + config.key.stripPrefix("delta.")
+      val deprecatedSqlConf = Option(sqlConfs.getConfString(deprecatedSqlConfKey, null))
+      (sqlConf, deprecatedSqlConf) match {
+        case (Some(default), _) => Some(config(default))
+        case (_, Some(default)) => Some(config(default))
+        case (None, None) => None
       }
     }
 
