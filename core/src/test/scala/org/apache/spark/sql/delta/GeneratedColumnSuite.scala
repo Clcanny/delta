@@ -1084,9 +1084,8 @@ trait GeneratedColumnSuiteBase extends GeneratedColumnTest {
   }
 
   test("MERGE UPDATE set star add column") {
-    confKeys = List("spark.delta.schema.autoMerge.enabled",
-                    "spark.databricks.delta.schema.autoMerge.enabled")
-    for (confKey <- confKeys) {
+    for (confKey <- List("spark.delta.schema.autoMerge.enabled",
+                         "spark.databricks.delta.schema.autoMerge.enabled")) {
       withSQLConf((confKey, "true")) {
         withTableName("source") { src =>
           withTableName("target") { tgt =>
