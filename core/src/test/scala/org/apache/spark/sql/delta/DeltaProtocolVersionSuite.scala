@@ -510,9 +510,9 @@ trait DeltaProtocolVersionSuiteBase extends QueryTest
       sql(s"CREATE TABLE $tableName (id bigint NOT NULL) USING delta LOCATION '$dir'")
     }
 
-    for (key <- List("spark.delta.properties.defaults.appendOnly",
-                     "spark.databricks.delta.properties.defaults.appendOnly")) {
-      withSQLConf(key -> "true") {
+    for (confKey <- List("spark.delta.properties.defaults.appendOnly",
+                         "spark.databricks.delta.properties.defaults.appendOnly")) {
+      withSQLConf(confKey -> "true") {
         testTableCreation { dir => spark.range(10).write.format("delta").save(dir) }
         testTableCreation { dir =>
           spark.range(10).write.format("delta").option("path", dir).saveAsTable(tableName)
