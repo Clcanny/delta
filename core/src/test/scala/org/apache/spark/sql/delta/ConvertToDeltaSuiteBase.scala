@@ -335,8 +335,8 @@ trait ConvertToDeltaSuiteBase extends ConvertToDeltaSuiteBaseCommons
     val stream = MemoryStream[Int]
     val df = stream.toDS().toDF("col1")
 
-    for (key <- List("spark.delta.convert.useMetadataLog",
-                     "spark.databricks.delta.convert.useMetadataLog")) {
+    for (confKey <- List("spark.delta.convert.useMetadataLog",
+                         "spark.databricks.delta.convert.useMetadataLog")) {
       withTempDir { outputDir =>
         val checkpoint = new File(outputDir, "_check").toString
         val dataLocation = new File(outputDir, "data").toString
@@ -354,7 +354,7 @@ trait ConvertToDeltaSuiteBase extends ConvertToDeltaSuiteBaseCommons
         spark.range(11, 21).select('id.cast("int") as 'col1)
           .write.mode("append").parquet(dataLocation)
 
-        withSQLConf((key, "false")) {
+        withSQLConf((confKey, "false")) {
           sql(s"CONVERT TO DELTA parquet.`$dataLocation`")
         }
 
@@ -670,12 +670,12 @@ trait ConvertToDeltaSuiteBase extends ConvertToDeltaSuiteBaseCommons
   }
 
   test("can fetch global configs") {
-    for (key <- List("spark.delta.properties.defaults.appendOnly",
-                     "spark.databricks.delta.properties.defaults.appendOnly")) {
+    for (confKey <- List("spark.delta.properties.defaults.appendOnly",
+                         "spark.databricks.delta.properties.defaults.appendOnly")) {
       withTempDir { dir =>
         val path = dir.getCanonicalPath
         val deltaLog = DeltaLog.forTable(spark, path)
-        withSQLConf(key -> "true") {
+        withSQLConf(confKey -> "true") {
           writeFiles(path, simpleDF.coalesce(1))
           convertToDelta(s"parquet.`$path`")
         }
