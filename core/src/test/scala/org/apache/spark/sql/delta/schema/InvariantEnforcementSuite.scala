@@ -450,7 +450,7 @@ class InvariantEnforcementSuite extends QueryTest
     testQuietly(testName) {
       val confKeys = Array("spark.delta.constraints.allowUnenforcedNotNull.enabled",
                            "spark.databricks.delta.constraints.allowUnenforcedNotNull.enabled")
-      for (i <- 0 until confKeys.size()) {
+      for (i <- 0 until confKeys.size) {
         val nullTable = s"nullTbl_$i"
         withTable(nullTable) {
           // Try creating the table with the check enabled first, which should fail, then create it
