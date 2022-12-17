@@ -713,7 +713,9 @@ trait DeltaErrorsBase
       messageParameters = Array(confKey, DeltaSQLConf.ALLOW_ARBITRARY_TABLE_PROPERTIES.key))
   }
 
-  def conflicitConfigurationKeysException(confKeyA, confKeyB): Throwable = {
+  def conflicitConfigurationKeysException(
+      confKeyA: String,
+      confKeyB: String): Throwable = {
     new DeltaAnalysisException(
       errorClass = "DELTA_CONFLICT_CONFIGURATIONS",
       messageParameters = Array(confKeyA, confKeyB))
