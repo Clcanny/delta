@@ -201,4 +201,62 @@ class DeltaConfigSuite extends SparkFunSuite
       assert(e.getMessage == msg)
     }
   }
+
+  test("change configurations prefix from spark.databricks.delta to spark.delta") {
+    // case 1: delta.isolationLevel is a valid configuration key.
+    withTempDir { dir =>
+      val e = intercept[IllegalArgumentException] {
+        sql(
+          s"""CREATE TABLE delta.`${dir.getCanonicalPath}` (id bigint) USING delta
+             |TBLPROPERTIES ('delta.isolationLevel' = 'InvalidSerializable')
+             |""".stripMargin)
+      }
+      val msg = "invalid isolation level 'InvalidSerializable'"
+      assert(e.getMessage == msg)
+    }
+
+    // case 2: delta.databricks.isolationLevel is a valid but deprecated configuration key.
+    withTempDir { dir =>
+      val e = intercept[IllegalArgumentException] {
+        sql(
+          s"""CREATE TABLE delta.`${dir.getCanonicalPath}` (id bigint) USING delta
+             |TBLPROPERTIES ('delta.databricks.isolationLevel' = 'InvalidSerializable')
+             |""".stripMargin)
+      }
+      val msg = "invalid isolation level 'InvalidSerializable'"
+      assert(e.getMessage == msg)
+    }
+
+    // case 3: Setting delta.isolationLevel and delta.databricks.isolationLevel
+    //         to different values is not acceptable.
+    withTempDir { dir =>
+      val e = intercept[IllegalArgumentException] {
+        sql(
+          s"""CREATE TABLE delta.`${dir.getCanonicalPath}` (id bigint) USING delta
+             |TBLPROPERTIES (
+             |  'delta.databricks.isolationLevel' = 'InvalidSerializable'
+             |  'delta.databricks.isolationLevel' = 'Serializable'
+             |)
+             |""".stripMargin)
+      }
+      val msg = ""
+      assert(e.getMessage == "")
+    }
+
+    // case 4: Setting delta.isolationLevel and delta.databricks.isolationLevel
+    //         to the same value is acceptable.
+    withTempDir { dir =>
+      val e = intercept[IllegalArgumentException] {
+        sql(
+          s"""CREATE TABLE delta.`${dir.getCanonicalPath}` (id bigint) USING delta
+             |TBLPROPERTIES (
+             |  'delta.databricks.isolationLevel' = 'InvalidSerializable'
+             |  'delta.databricks.isolationLevel' = 'InvalidSerializable'
+             |)
+             |""".stripMargin)
+      }
+      val msg = "invalid isolation level 'InvalidSerializable'"
+      assert(e.getMessage == "")
+    }
+  }
 }
