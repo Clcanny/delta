@@ -196,8 +196,18 @@ trait DeltaConfigsBase extends DeltaLogging {
       val deprecatedSqlConfKey = deprecatedSqlConfPrefix + config.key.stripPrefix("delta.")
       val deprecatedSqlConf = Option(sqlConfs.getConfString(deprecatedSqlConfKey, null))
       (sqlConf, deprecatedSqlConf) match {
-        case (Some(default), _) => Some(config(default))
-        case (_, Some(default)) => Some(config(default))
+        case (Some(default), Some(deprecatedDefault)) =>
+          (default, deprecatedDefault) match {
+            case (`deprecatedDefault`, _) => Some(config(deprecatedDefault))
+            case _ =>
+              logConsole(
+                s"You are setting property $sqlConfKey to $default and " +
+                 "deprecated property $deprecatedSqlConfKey to $deprecatedDefault " +
+                 "while $default is not equal to $deprecatedSqlConfKey")
+              throw DeltaErrors.conflicitConfigurationKeysException($sqlConfKey, $deprecatedSqlConfKey)
+          }
+        case (Some(default), None) => Some(config(default))
+        case (None, Some(default)) => Some(config(default))
         case (None, None) => None
       }
     }

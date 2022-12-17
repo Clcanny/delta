@@ -1676,6 +1676,12 @@
     ],
     "sqlState" : "0A000"
   },
+  "DELTA_CONFLICT_CONFIGURATIONS" : {
+    "message" : [
+      "Conflicy configurations were specified: <config>, <config>"
+    ],
+    "sqlState" : "0A000"
+  },
   "DELTA_UNKNOWN_PRIVILEGE" : {
     "message" : [
       "Unknown privilege: <privilege>"
