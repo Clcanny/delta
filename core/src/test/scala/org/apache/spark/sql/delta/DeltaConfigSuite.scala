@@ -207,8 +207,12 @@ class DeltaConfigSuite extends SparkFunSuite
     val sqlConf = new SQLConf
     sqlConf.setConfString("spark.delta.properties.defaults.checkpointInterval", "1")
     sqlConf.setConfString("spark.databricks.delta.properties.defaults.checkpointInterval", "2")
-    val e = intercept[IllegalArgumentException] { mergeGlobalConfigs(sqlConf, Map.empty[String, String]) }
-    val msg = ""
+    val e = intercept[DeltaAnalysisException] { mergeGlobalConfigs(sqlConf, Map.empty[String, String]) }
+    val msg = s"""
+                 |Conflict configurations were specified:
+                 |spark.delta.properties.defaults.checkpointInterval=1,
+                 |spark.databricks.delta.properties.defaults.checkpointInterval=2
+                 |""".stripMargin.linesIterator.mkString(" ").trim
     assert (e.getMessage == msg)
   }
 }
