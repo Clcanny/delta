@@ -475,7 +475,7 @@ trait DeltaSQLConfBase {
         } catch {
           case _: IllegalArgumentException => true
         },
-        """"spark.databricks.delta.merge.materializeSource.rddStorageLevel" """ +
+        """"spark.delta.merge.materializeSource.rddStorageLevel" """ +
           "must be a valid StorageLevel")
       .createWithDefault("DISK_ONLY")
 
@@ -492,7 +492,7 @@ trait DeltaSQLConfBase {
         } catch {
           case _: IllegalArgumentException => true
         },
-        """"spark.databricks.delta.merge.materializeSource.rddStorageLevelRetry" """ +
+        """"spark.delta.merge.materializeSource.rddStorageLevelRetry" """ +
           "must be a valid StorageLevel")
       .createWithDefault("DISK_ONLY_2")
 
