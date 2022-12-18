@@ -18,13 +18,14 @@ package org.apache.spark.sql.delta
 
 import java.util.concurrent.TimeUnit
 
-import org.apache.spark.sql.delta.DeltaConfigs.{getMilliSeconds, isValidIntervalConfigValue, parseCalendarInterval}
+import org.apache.spark.sql.delta.DeltaConfigs.{getMilliSeconds, isValidIntervalConfigValue, mergeGlobalConfigs, parseCalendarInterval}
 import org.apache.spark.sql.delta.sources.DeltaSQLConf
 import org.apache.spark.sql.delta.test.DeltaSQLCommandTest
 import org.apache.spark.sql.delta.test.DeltaTestImplicits._
 
 import org.apache.spark.SparkFunSuite
 import org.apache.spark.sql.AnalysisException
+import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.test.SharedSparkSession
 import org.apache.spark.unsafe.types.CalendarInterval
 import org.apache.spark.util.ManualClock
@@ -203,60 +204,11 @@ class DeltaConfigSuite extends SparkFunSuite
   }
 
   test("change configurations prefix from spark.databricks.delta to spark.delta") {
-    // case 1: delta.isolationLevel is a valid configuration key.
-    withTempDir { dir =>
-      val e = intercept[IllegalArgumentException] {
-        sql(
-          s"""CREATE TABLE delta.`${dir.getCanonicalPath}` (id bigint) USING delta
-             |TBLPROPERTIES ('delta.isolationLevel' = 'InvalidSerializable')
-             |""".stripMargin)
-      }
-      val msg = "invalid isolation level 'InvalidSerializable'"
-      assert(e.getMessage == msg)
-    }
-
-    // case 2: delta.databricks.isolationLevel is a valid but deprecated configuration key.
-    withTempDir { dir =>
-      val e = intercept[IllegalArgumentException] {
-        sql(
-          s"""CREATE TABLE delta.`${dir.getCanonicalPath}` (id bigint) USING delta
-             |TBLPROPERTIES ('delta.databricks.isolationLevel' = 'InvalidSerializable')
-             |""".stripMargin)
-      }
-      val msg = "invalid isolation level 'InvalidSerializable'"
-      assert(e.getMessage == msg)
-    }
-
-    // case 3: Setting delta.isolationLevel and delta.databricks.isolationLevel
-    //         to different values is not acceptable.
-    withTempDir { dir =>
-      val e = intercept[IllegalArgumentException] {
-        sql(
-          s"""CREATE TABLE delta.`${dir.getCanonicalPath}` (id bigint) USING delta
-             |TBLPROPERTIES (
-             |  'delta.databricks.isolationLevel' = 'InvalidSerializable'
-             |  'delta.databricks.isolationLevel' = 'Serializable'
-             |)
-             |""".stripMargin)
-      }
-      val msg = ""
-      assert(e.getMessage == "")
-    }
-
-    // case 4: Setting delta.isolationLevel and delta.databricks.isolationLevel
-    //         to the same value is acceptable.
-    withTempDir { dir =>
-      val e = intercept[IllegalArgumentException] {
-        sql(
-          s"""CREATE TABLE delta.`${dir.getCanonicalPath}` (id bigint) USING delta
-             |TBLPROPERTIES (
-             |  'delta.databricks.isolationLevel' = 'InvalidSerializable'
-             |  'delta.databricks.isolationLevel' = 'InvalidSerializable'
-             |)
-             |""".stripMargin)
-      }
-      val msg = "invalid isolation level 'InvalidSerializable'"
-      assert(e.getMessage == "")
-    }
+    val sqlConf = new SQLConf
+    sqlConf.setConfString("spark.delta.properties.defaults.checkpointInterval", "1")
+    sqlConf.setConfString("spark.databricks.delta.properties.defaults.checkpointInterval", "2")
+    val e = intercept[IllegalArgumentException] { mergeGlobalConfigs(sqlConf, Map.empty[String, String]) }
+    val msg = ""
+    assert (e.getMessage == msg)
   }
 }

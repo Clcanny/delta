@@ -205,7 +205,7 @@ trait DeltaConfigsBase extends DeltaLogging {
                    | deprecated property $deprecatedSqlConfKey to $deprecatedDefault
                    | while $default is not equal to $deprecatedDefault""".stripMargin)
               throw DeltaErrors.conflicitConfigurationKeysException(
-                sqlConfKey, deprecatedSqlConfKey)
+                sqlConfKey, default, deprecatedSqlConfKey, deprecatedDefault)
           }
         case (Some(default), None) => Some(config(default))
         case (None, Some(default)) => Some(config(default))

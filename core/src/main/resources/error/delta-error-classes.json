@@ -1678,9 +1678,9 @@
   },
   "DELTA_CONFLICT_CONFIGURATIONS" : {
     "message" : [
-      "Conflicy configurations were specified: <config>, <config>"
+      "Conflict configurations were specified: <key>=<value>, <key>=<value>"
     ],
-    "sqlState" : "0A000"
+    "sqlState" : "25000"
   },
   "DELTA_UNKNOWN_PRIVILEGE" : {
     "message" : [

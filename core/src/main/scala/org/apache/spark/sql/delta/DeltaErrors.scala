@@ -715,10 +715,12 @@ trait DeltaErrorsBase
 
   def conflicitConfigurationKeysException(
       confKeyA: String,
-      confKeyB: String): Throwable = {
+      valueA: String,
+      confKeyB: String,
+      valueB: String): Throwable = {
     new DeltaAnalysisException(
       errorClass = "DELTA_CONFLICT_CONFIGURATIONS",
-      messageParameters = Array(confKeyA, confKeyB))
+      messageParameters = Array(confKeyA, valueA, confKeyB, valueB))
   }
 
   def cdcNotAllowedInThisVersion(): Throwable = {
