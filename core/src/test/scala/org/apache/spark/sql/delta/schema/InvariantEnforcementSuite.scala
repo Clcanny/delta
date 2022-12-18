@@ -465,7 +465,8 @@ class InvariantEnforcementSuite extends QueryTest
             sql(s"CREATE TABLE $nullTable ($schemaString) USING delta")
           }
 
-          // Once we've created the table, writes should succeed even if they violate the constraint.
+          // Once we've created the table,
+          // writes should succeed even if they violate the constraint.
           spark.createDataFrame(
             Seq(data).asJava,
             spark.table(nullTable).schema
