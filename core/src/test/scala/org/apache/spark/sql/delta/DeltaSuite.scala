@@ -1462,11 +1462,14 @@ class DeltaSuite extends QueryTest
 
   test("SC-8727 - can't set negative num partitions") {
     withTempDir { tempDir =>
-      val caught = intercept[IllegalArgumentException] {
-        withSQLConf(("spark.databricks.delta.snapshotPartitions", "-1")) {}
-      }
+      for (confKey <- List("spark.delta.snapshotPartitions",
+                           "spark.databricks.delta.snapshotPartitions")) {
+        val caught = intercept[IllegalArgumentException] {
+          withSQLConf(("spark.databricks.delta.snapshotPartitions", "-1")) {}
+        }
 
-      assert(caught.getMessage.contains("Delta snapshot partition number must be positive."))
+        assert(caught.getMessage.contains("Delta snapshot partition number must be positive."))
+      }
     }
   }
 
