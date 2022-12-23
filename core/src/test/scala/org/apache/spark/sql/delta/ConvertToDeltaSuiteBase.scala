@@ -332,11 +332,11 @@ trait ConvertToDeltaSuiteBase extends ConvertToDeltaSuiteBaseCommons
   }
 
   test("convert a streaming parquet path: ignore metadata") {
-    val stream = MemoryStream[Int]
-    val df = stream.toDS().toDF("col1")
-
     for (confKey <- List("spark.delta.convert.useMetadataLog",
                          "spark.databricks.delta.convert.useMetadataLog")) {
+      val stream = MemoryStream[Int]
+      val df = stream.toDS().toDF("col1")
+
       withTempDir { outputDir =>
         val checkpoint = new File(outputDir, "_check").toString
         val dataLocation = new File(outputDir, "data").toString
