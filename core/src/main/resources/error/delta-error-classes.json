@@ -1676,9 +1676,9 @@
     ],
     "sqlState" : "0A000"
   },
-  "DELTA_CONFLICT_CONFIGURATIONS" : {
+  "DELTA_AMBIGUOUS_CONFIGURATIONS" : {
     "message" : [
-      "Conflict configurations were specified: <key>=<value>, <key>=<value>"
+      "Ambiguous configurations were specified: <key>=<value>, <key>=<value>"
     ],
     "sqlState" : "25000"
   },

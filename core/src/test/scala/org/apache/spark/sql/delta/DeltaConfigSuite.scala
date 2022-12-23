@@ -212,7 +212,7 @@ class DeltaConfigSuite extends SparkFunSuite
       mergeGlobalConfigs(sqlConf, Map.empty[String, String])
     }
     val msg = s"""
-                 |Conflict configurations were specified:
+                 |Ambiguous configurations were specified:
                  |spark.delta.properties.defaults.checkpointInterval=1,
                  |spark.databricks.delta.properties.defaults.checkpointInterval=2
                  |""".stripMargin.linesIterator.mkString(" ").trim

@@ -201,10 +201,13 @@ trait DeltaConfigsBase extends DeltaLogging {
             case (`deprecatedDefault`, _) => Some(config(deprecatedDefault))
             case _ =>
               logConsole(
-                s"""You are setting property $sqlConfKey to $default and
-                   | deprecated property $deprecatedSqlConfKey to $deprecatedDefault
-                   | while $default is not equal to $deprecatedDefault""".stripMargin)
-              throw DeltaErrors.conflicitConfigurationKeysException(
+                s"""
+                   |Ambiguous values,
+                   |you are setting property $sqlConfKey to $default and
+                   |deprecated property $deprecatedSqlConfKey to $deprecatedDefault
+                   |while $default is not equal to $deprecatedDefault
+                   |""".stripMargin.linesIterator.mkString(" ").trim)
+              throw DeltaErrors.ambiguousConfigurationKeysException(
                 sqlConfKey, default, deprecatedSqlConfKey, deprecatedDefault)
           }
         case (Some(default), None) => Some(config(default))
